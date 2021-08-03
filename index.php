@@ -102,7 +102,7 @@ let sleeveB = {"short":0,"long":0};
             http.onreadystatechange = function(){
                 if(this.readyState==4 && this.status==200)
                 {
-                    document.getElementById("result").innerHTML = this.responseText;
+                    document.getElementById("result").innerHTML = "<center><font size='14px'>" + this.responseText + "</font></center>";
                 }
             }
             http.send(params);
@@ -150,7 +150,14 @@ function selectPackage()
 }
 function exportCSV()
 {
-    window.location.replace('?export=&url=http://localhost/baju/current_records.php');
+    http.open("GET","index.php?export=&url=http://localhost/baju/current_records.php",true);
+    http.onreadystatechange = function() {
+        if(this.readyState==4 && this.status==200)
+        {
+            alert("Sucessfully export the data");
+        }
+    }
+    http.send();
 }
     resultTable();
 </script>
@@ -158,27 +165,72 @@ function exportCSV()
 
 
 <body background="http://i66.servimg.com/u/f66/14/86/38/04/ground10.gif" bgcolor="#000000">
-<style><!--#content-wrapper{width:50%; margin:15px auto; padding:10px; text-align:left; border:1px solid #06ff00}--></style>
+<style>#content-wrapper{width:50%; margin:15px auto; padding:10px; text-align:left; border:1px solid #06ff00}</style>
 <div id='content-wrapper'>
 <center>
 <font style="font: 15pt Arial; color: yellow;">DragonForce Shopee Management System </font><br></br>
 <img src="https://scontent.fkul14-1.fna.fbcdn.net/v/t1.6435-9/227544855_249206010376576_5899128555875464662_n.jpg?_nc_cat=105&ccb=1-3&_nc_sid=730e14&_nc_eui2=AeF4E_hT9FRY-ED4t0lrLZ1s3T8W6MITgwvdPxbowhODC4diOgOF5hq60YBdgQzdnXkqz0-lKXXozD8i9_ZQRY4B&_nc_ohc=SoWk_ktuTcIAX-A7zGV&_nc_ht=scontent.fkul14-1.fna&oh=e9eb253b1b2afae21490681fbd153dcc&oe=613080C7" width="550" height="320">
-
-</center>
 </div>
-
-<style><!--#content-wrapper2{width:75%; margin:15px auto; padding:10px; text-align:left; border:1px solid #06ff00}--></style>
+<style>
+#content-wrapper2{
+    width:85%;
+    margin:15px auto;
+    padding:10px;
+    text-align:left;
+    border:1px solid #06ff00;
+    overflow:auto;
+}
+.submit{
+    width:50%;
+    margin:auto;
+}
+.submit input[type=submit]{
+    width:100%;
+    font-size:17px;
+    cursor:pointer;
+    border-radius:5px;
+    margin-top:10px;
+}
+#content-wrapper2 table,
+#content-wrapper2 th,
+#content-wrapper2 td,{
+    border:1px solid #fff;
+}
+#content-wrapper2 table{
+    border-collapse: collapse;
+    margin:auto;
+    margin-top:20px;
+}
+#stats{
+    width:50%;
+    margin:auto;
+    text-align:center;
+}
+#tt h3{
+    float:right;
+}
+.ft{
+    width:50%;
+    margin:auto;
+    text-align:center;
+    margin-top:15px;
+}
+.ft button{
+    width:30%;
+    font-size:17px;
+    cursor:pointer;
+}
+</style>
 <div id='content-wrapper2'>
-<center>
-<section class='submit'>
 <form id='formSubmit' name='add' onsubmit='sendPost()' method='POST' > 
-<input type='text' name='id' placeholder='shopee ID'>
-<input type='text' name='shopee' placeholder='Shopee User'>
-<input type='text' name='name' placeholder='Customer Name'>
-<input type='number' name='quantity' placeholder='1'>
-<input type='date' name='date' placeholder=''>
-<select name='package'>
 
+<table style="color:yellow;text-align:center;"><th>ID</th><th>User</th><th>Name</th><th>Quantity</th><th>Package</th><th>Size</th><th>Sleeve</th><th>Date</th>
+<tr>
+<td><input type='text' name='id' placeholder='shopee ID'></td>
+<td><input type='text' name='shopee' placeholder='Shopee User'></td>
+<td><input type='text' name='name' placeholder='Customer Name'></td>
+<td><input type='number' name='quantity' placeholder='1'></td>
+<td><select name='package'>
 <?php 
 $package = $db::Package();
 while($p=$package->fetch_assoc())
@@ -186,8 +238,8 @@ while($p=$package->fetch_assoc())
     echo "<option value='".$p['package_id']."'>".$p['type']."</option>";
 }
  ?>
-</select>
-<select name='size'>
+</select></td>
+<td><select name='size'>
 <?php 
 $package = $db::PackageSize();
 while($p=$package->fetch_assoc())
@@ -195,8 +247,8 @@ while($p=$package->fetch_assoc())
     echo "<option value='".$p['size_id']."'>".$p['size']."</option>";
 }
  ?>
-</select>
-<select name='sleeve'>
+</select></td>
+<td><select name='sleeve'>
 <?php 
 $package = $db::Sleeves();
 while($p=$package->fetch_assoc())
@@ -204,14 +256,22 @@ while($p=$package->fetch_assoc())
     echo "<option value='".$p['sid']."'>".$p['stype']."</option>";
 }
  ?>
-</select>
+</select></td>
+<td><input type='date' name='date' placeholder=''></td>
+</tr>
+</table>
+<section class='submit'>
 <input type='submit' name='add' value='Submit'>
 </form>
-<span style="color: yellow;" id='result'></span>
 </section>
+
+
+<span style="color: yellow;" id='result'></span>
+
 <span style="color: yellow;" id='table1'></span>
 
 </br>
+<div id='stats'>
 <label style="color: yellow;">Choose Package</label>
 <select>
   <option id="default" selected>--Package--</option>
@@ -219,14 +279,16 @@ while($p=$package->fetch_assoc())
   <option id="b">Package B</option>
 </select>
 <button onclick="selectPackage()">View Statistic</button>
+</div>
 </br>
 <span style="color: yellow;" id='table2'></span>
 
-<div>
-    <span style="color: yellow;" id='total'></span>
+<div id='tt'>
+    <h3><span style="color: yellow;" id='total'></span></h3>
 </div>
 
+<footer class='ft'>
 <button onclick="exportCSV()">Export CSV</button>
-</center>
+</footer>
 </body>
 </html>
